@@ -1,1 +1,10 @@
+**/target/
+**/.classpath
+**/.project
+**/.settings/
+.idea/
+.vscode/
+*.iml
+.env
+**/data/
 portabilidades-db*
