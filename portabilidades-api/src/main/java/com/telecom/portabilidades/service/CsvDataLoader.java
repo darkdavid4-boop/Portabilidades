@@ -8,6 +8,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -27,6 +28,7 @@ public class CsvDataLoader implements CommandLineRunner {
     }
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
         log.info("Iniciando la carga de datos desde ds_24475_1.csv...");
         long startTime = System.currentTimeMillis();
@@ -96,6 +98,11 @@ public class CsvDataLoader implements CommandLineRunner {
             }
         }
 
+        if (registros.isEmpty()) {
+            log.warn("El archivo CSV no contiene registros válidos; se conserva la información existente.");
+            return;
+        }
+
         log.info("Total registros leídos del CSV: {}. Insertando en base de datos H2...", registros.size());
 
         String sql = "INSERT INTO registros_telecomunicaciones (" +
@@ -103,6 +110,8 @@ public class CsvDataLoader implements CommandLineRunner {
                 "terminal_telefonia_movil, linea_ba_movil, tipo_ba_mayorista, tipo_portabilidad, " +
                 "unidades, lineas, tasa_penetracion, portabilidades) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        jdbcTemplate.update("DELETE FROM registros_telecomunicaciones");
 
         int batchSize = 1000;
         for (int i = 0; i < registros.size(); i += batchSize) {
