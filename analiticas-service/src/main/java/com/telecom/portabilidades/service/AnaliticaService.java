@@ -225,13 +225,20 @@ public class AnaliticaService {
     }
 
     public List<String> obtenerAñosDisponibles() {
-        return obtenerRegistros().stream()
-                .map(RegistroApiDto::getMes)
-                .filter(Objects::nonNull)
+        return obtenerMesesDisponibles().stream()
                 .map(mes -> mes.substring(0, 4))
                 .distinct()
                 .sorted(Comparator.reverseOrder())
                 .collect(Collectors.toList());
+    }
+
+    public List<String> obtenerMesesDisponibles() {
+        return obtenerRegistros().stream()
+                .map(RegistroApiDto::getMes)
+                .filter(Objects::nonNull)
+                .distinct()
+                .sorted(Comparator.reverseOrder())
+                .toList();
     }
 
     private List<RegistroApiDto> obtenerRegistros() {

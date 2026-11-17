@@ -60,6 +60,11 @@ class AnaliticaServiceTest {
                 () -> analiticaService.obtenerResumenAnual(2023));
     }
 
+    @Test
+    void availableMonthsAreDistinctAndNewestFirst() {
+        assertEquals(List.of("2024-12"), analiticaService.obtenerMesesDisponibles());
+    }
+
     private RegistroApiDto registro(
             String mes, String servicio, String concepto, String operador,
             String tecnologia, String tipoPortabilidad, Long lineas, Long portabilidades) {

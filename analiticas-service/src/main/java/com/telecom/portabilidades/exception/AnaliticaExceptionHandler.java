@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
@@ -35,6 +36,22 @@ public class AnaliticaExceptionHandler {
         log.warn("No se pudo consultar registros-service.", exception);
         return respuesta(HttpStatus.SERVICE_UNAVAILABLE, "El servicio de registros no está disponible.",
                 request.getRequestURI());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponseDto> manejarSolicitudInvalida(
+            IllegalArgumentException exception, HttpServletRequest request) {
+        return respuesta(HttpStatus.BAD_REQUEST, exception.getMessage(), request.getRequestURI());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponseDto> manejarValidacion(
+            MethodArgumentNotValidException exception, HttpServletRequest request) {
+        String message = exception.getBindingResult().getFieldErrors().stream()
+                .findFirst()
+                .map(error -> error.getDefaultMessage())
+                .orElse("La solicitud contiene campos inválidos.");
+        return respuesta(HttpStatus.BAD_REQUEST, message, request.getRequestURI());
     }
 
     @ExceptionHandler(Exception.class)
